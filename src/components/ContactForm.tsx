@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,7 +22,8 @@ import {
   DialogFooter,
 } from "./ui/dialog";
 import { Switch } from "./ui/switch";
-import { Star } from "lucide-react";
+import { Star, Upload, X } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 const contactFormSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -35,6 +36,7 @@ const contactFormSchema = z.object({
   address: z.string().optional(),
   notes: z.string().optional(),
   favorite: z.boolean().default(false),
+  avatarUrl: z.string().optional(),
 });
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
@@ -58,6 +60,7 @@ const ContactForm = ({
     address: "",
     notes: "",
     favorite: false,
+    avatarUrl: "",
   },
   title = "Add Contact",
 }: ContactFormProps) => {
@@ -65,6 +68,32 @@ const ContactForm = ({
     resolver: zodResolver(contactFormSchema),
     defaultValues: initialData,
   });
+
+  const [previewImage, setPreviewImage] = useState<string | null>(
+    initialData.avatarUrl || null,
+  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string;
+      setPreviewImage(dataUrl);
+      form.setValue("avatarUrl", dataUrl);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = () => {
+    setPreviewImage(null);
+    form.setValue("avatarUrl", "");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   const handleSubmit = (data: ContactFormValues) => {
     onSubmit(data);
@@ -161,6 +190,56 @@ const ContactForm = ({
                 </FormItem>
               )}
             />
+
+            {/* Image Upload */}
+            <div className="space-y-4">
+              <Label>Contact Picture</Label>
+              <div className="flex flex-col items-center gap-4">
+                {previewImage ? (
+                  <div className="relative">
+                    <Avatar className="h-24 w-24">
+                      <AvatarImage src={previewImage} alt="Contact" />
+                      <AvatarFallback>IMG</AvatarFallback>
+                    </Avatar>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                      onClick={handleRemoveImage}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="h-24 w-24 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
+                      <Upload className="h-8 w-8 text-gray-400" />
+                    </div>
+                    <span className="text-sm text-muted-foreground">
+                      No image selected
+                    </span>
+                  </div>
+                )}
+                <div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    id="avatar-upload"
+                    className="hidden"
+                    onChange={handleImageUpload}
+                    ref={fileInputRef}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    {previewImage ? "Change Picture" : "Upload Picture"}
+                  </Button>
+                </div>
+              </div>
+            </div>
 
             <FormField
               control={form.control}
