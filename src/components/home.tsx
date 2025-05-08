@@ -22,6 +22,7 @@ interface Contact {
   address?: string;
   notes?: string;
   favorite: boolean;
+  avatarUrl?: string;
 }
 
 export default function Home() {
@@ -42,6 +43,7 @@ export default function Home() {
       address: "123 Main St, Anytown, USA",
       notes: "Work colleague",
       favorite: true,
+      avatarUrl: "",
     },
     {
       id: "2",
@@ -51,6 +53,7 @@ export default function Home() {
       address: "456 Oak Ave, Somewhere, USA",
       notes: "College friend",
       favorite: false,
+      avatarUrl: "",
     },
     {
       id: "3",
@@ -60,6 +63,7 @@ export default function Home() {
       address: "789 Pine Rd, Elsewhere, USA",
       notes: "Family doctor",
       favorite: true,
+      avatarUrl: "",
     },
   ]);
 
@@ -119,6 +123,7 @@ export default function Home() {
           Address: contact.address || "",
           Notes: contact.notes || "",
           Favorite: contact.favorite ? "Yes" : "No",
+          AvatarUrl: contact.avatarUrl || "",
         }));
 
         // Create worksheet
@@ -165,6 +170,7 @@ export default function Home() {
             address: row.Address || "",
             notes: row.Notes || "",
             favorite: row.Favorite === "Yes",
+            avatarUrl: row.AvatarUrl || "",
           }));
 
           setContacts([...contacts, ...newContacts]);

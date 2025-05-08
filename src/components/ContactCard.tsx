@@ -10,6 +10,7 @@ interface ContactCardProps {
   phone?: string;
   email?: string;
   isFavorite?: boolean;
+  avatarUrl?: string;
   onEdit?: (id: string) => void;
   onToggleFavorite?: (id: string) => void;
   onClick?: (id: string) => void;
@@ -21,6 +22,7 @@ const ContactCard = ({
   phone = "(555) 123-4567",
   email = "john.doe@example.com",
   isFavorite = false,
+  avatarUrl,
   onEdit = () => {},
   onToggleFavorite = () => {},
   onClick = () => {},
@@ -50,7 +52,10 @@ const ContactCard = ({
         <div className="flex items-center gap-4">
           <Avatar className="h-12 w-12 bg-primary/10">
             <AvatarImage
-              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`}
+              src={
+                avatarUrl ||
+                `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`
+              }
               alt={name}
             />
             <AvatarFallback>{initials}</AvatarFallback>

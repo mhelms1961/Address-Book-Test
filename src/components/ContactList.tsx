@@ -18,6 +18,7 @@ interface Contact {
   address?: string;
   notes?: string;
   favorite: boolean;
+  avatarUrl?: string;
 }
 
 interface ContactListProps {
@@ -122,6 +123,7 @@ const ContactList = ({
               name={contact.name}
               phone={contact.phone}
               email={contact.email}
+              avatarUrl={contact.avatarUrl}
               isFavorite={contact.favorite}
               onClick={() => onContactClick(contact)}
               onEdit={() => onEditContact(contact)}
