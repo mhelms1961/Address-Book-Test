@@ -1,7 +1,6 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Star, Edit, Phone, Mail } from "lucide-react";
 
 interface ContactCardProps {
@@ -10,7 +9,6 @@ interface ContactCardProps {
   phone?: string;
   email?: string;
   isFavorite?: boolean;
-  avatarUrl?: string;
   onEdit?: (id: string) => void;
   onToggleFavorite?: (id: string) => void;
   onClick?: (id: string) => void;
@@ -22,7 +20,7 @@ const ContactCard = ({
   phone = "(555) 123-4567",
   email = "john.doe@example.com",
   isFavorite = false,
-  avatarUrl,
+
   onEdit = () => {},
   onToggleFavorite = () => {},
   onClick = () => {},
@@ -50,17 +48,6 @@ const ContactCard = ({
     >
       <CardContent className="p-4">
         <div className="flex items-center gap-4">
-          <Avatar className="h-12 w-12 bg-primary/10">
-            <AvatarImage
-              src={
-                avatarUrl ||
-                `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`
-              }
-              alt={name}
-            />
-            <AvatarFallback>{initials}</AvatarFallback>
-          </Avatar>
-
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-medium truncate">{name}</h3>

@@ -16,13 +16,17 @@ import ContactDetail from "./ContactDetail";
 
 interface Contact {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   phone: string;
   email: string;
-  address?: string;
+  streetAddress1?: string;
+  streetAddress2?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
   notes?: string;
   favorite: boolean;
-  avatarUrl?: string;
 }
 
 export default function Home() {
@@ -37,33 +41,45 @@ export default function Home() {
   const [contacts, setContacts] = useState<Contact[]>([
     {
       id: "1",
-      name: "John Doe",
+      firstName: "John",
+      lastName: "Doe",
       phone: "(555) 123-4567",
       email: "john.doe@example.com",
-      address: "123 Main St, Anytown, USA",
+      streetAddress1: "123 Main St",
+      streetAddress2: "",
+      city: "Anytown",
+      state: "CA",
+      zipCode: "12345",
       notes: "Work colleague",
       favorite: true,
-      avatarUrl: "",
     },
     {
       id: "2",
-      name: "Jane Smith",
+      firstName: "Jane",
+      lastName: "Smith",
       phone: "(555) 987-6543",
       email: "jane.smith@example.com",
-      address: "456 Oak Ave, Somewhere, USA",
+      streetAddress1: "456 Oak Ave",
+      streetAddress2: "",
+      city: "Somewhere",
+      state: "NY",
+      zipCode: "67890",
       notes: "College friend",
       favorite: false,
-      avatarUrl: "",
     },
     {
       id: "3",
-      name: "Alex Johnson",
+      firstName: "Alex",
+      lastName: "Johnson",
       phone: "(555) 456-7890",
       email: "alex.johnson@example.com",
-      address: "789 Pine Rd, Elsewhere, USA",
+      streetAddress1: "789 Pine Rd",
+      streetAddress2: "Apt 3C",
+      city: "Elsewhere",
+      state: "TX",
+      zipCode: "54321",
       notes: "Family doctor",
       favorite: true,
-      avatarUrl: "",
     },
   ]);
 
@@ -74,6 +90,11 @@ export default function Home() {
     };
     setContacts([...contacts, contact]);
     setIsAddDialogOpen(false);
+  };
+
+  const openAddContactDialog = () => {
+    setSelectedContact(null);
+    setIsAddDialogOpen(true);
   };
 
   const handleEditContact = (updatedContact: Contact) => {
@@ -117,13 +138,17 @@ export default function Home() {
       import("file-saver").then((FileSaver) => {
         // Prepare data for export
         const exportData = contacts.map((contact) => ({
-          Name: contact.name,
+          FirstName: contact.firstName,
+          LastName: contact.lastName,
           Phone: contact.phone,
           Email: contact.email,
-          Address: contact.address || "",
+          StreetAddress1: contact.streetAddress1 || "",
+          StreetAddress2: contact.streetAddress2 || "",
+          City: contact.city || "",
+          State: contact.state || "",
+          ZipCode: contact.zipCode || "",
           Notes: contact.notes || "",
           Favorite: contact.favorite ? "Yes" : "No",
-          AvatarUrl: contact.avatarUrl || "",
         }));
 
         // Create worksheet
@@ -164,13 +189,17 @@ export default function Home() {
           // Process and add contacts
           const newContacts = jsonData.map((row) => ({
             id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-            name: row.Name || "",
+            firstName: row.FirstName || "",
+            lastName: row.LastName || "",
             phone: row.Phone || "",
             email: row.Email || "",
-            address: row.Address || "",
+            streetAddress1: row.StreetAddress1 || "",
+            streetAddress2: row.StreetAddress2 || "",
+            city: row.City || "",
+            state: row.State || "",
+            zipCode: row.ZipCode || "",
             notes: row.Notes || "",
             favorite: row.Favorite === "Yes",
-            avatarUrl: row.AvatarUrl || "",
           }));
 
           setContacts([...contacts, ...newContacts]);
@@ -186,14 +215,15 @@ export default function Home() {
 
   const filteredContacts = contacts.filter(
     (contact) =>
-      contact.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contact.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      contact.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       contact.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       contact.phone.includes(searchTerm),
   );
 
   const sortedContacts = [...filteredContacts].sort((a, b) => {
     if (sortBy === "name") {
-      return a.name.localeCompare(b.name);
+      return (a.lastName + a.firstName).localeCompare(b.lastName + b.firstName);
     } else if (sortBy === "email") {
       return a.email.localeCompare(b.email);
     } else if (sortBy === "favorite") {
@@ -226,7 +256,7 @@ export default function Home() {
               className="hidden"
               onChange={handleImportContacts}
             />
-            <Button onClick={() => setIsAddDialogOpen(true)}>
+            <Button onClick={openAddContactDialog}>
               <PlusCircle className="mr-2 h-4 w-4" />
               Add Contact
             </Button>

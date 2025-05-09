@@ -12,13 +12,17 @@ import {
 
 interface Contact {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   phone: string;
   email: string;
-  address?: string;
+  streetAddress1?: string;
+  streetAddress2?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
   notes?: string;
   favorite: boolean;
-  avatarUrl?: string;
 }
 
 interface ContactListProps {
@@ -32,28 +36,43 @@ const ContactList = ({
   contacts = [
     {
       id: "1",
-      name: "John Doe",
+      firstName: "John",
+      lastName: "Doe",
       phone: "(555) 123-4567",
       email: "john.doe@example.com",
-      address: "123 Main St, Anytown, USA",
+      streetAddress1: "123 Main St",
+      streetAddress2: "",
+      city: "Anytown",
+      state: "CA",
+      zipCode: "12345",
       notes: "Work colleague",
       favorite: true,
     },
     {
       id: "2",
-      name: "Jane Smith",
+      firstName: "Jane",
+      lastName: "Smith",
       phone: "(555) 987-6543",
       email: "jane.smith@example.com",
-      address: "456 Oak Ave, Somewhere, USA",
+      streetAddress1: "456 Oak Ave",
+      streetAddress2: "",
+      city: "Somewhere",
+      state: "NY",
+      zipCode: "67890",
       notes: "College friend",
       favorite: false,
     },
     {
       id: "3",
-      name: "Alex Johnson",
+      firstName: "Alex",
+      lastName: "Johnson",
       phone: "(555) 456-7890",
       email: "alex.johnson@example.com",
-      address: "789 Pine Rd, Elsewhere, USA",
+      streetAddress1: "789 Pine Rd",
+      streetAddress2: "Apt 3C",
+      city: "Elsewhere",
+      state: "TX",
+      zipCode: "54321",
       notes: "Family friend",
       favorite: true,
     },
@@ -69,7 +88,8 @@ const ContactList = ({
   const filteredContacts = contacts.filter((contact) => {
     const searchLower = searchTerm.toLowerCase();
     return (
-      contact.name.toLowerCase().includes(searchLower) ||
+      contact.firstName.toLowerCase().includes(searchLower) ||
+      contact.lastName.toLowerCase().includes(searchLower) ||
       contact.email.toLowerCase().includes(searchLower) ||
       contact.phone.toLowerCase().includes(searchLower)
     );
@@ -78,7 +98,7 @@ const ContactList = ({
   // Sort contacts based on selected criteria
   const sortedContacts = [...filteredContacts].sort((a, b) => {
     if (sortBy === "name") {
-      return a.name.localeCompare(b.name);
+      return (a.lastName + a.firstName).localeCompare(b.lastName + b.firstName);
     } else if (sortBy === "email") {
       return a.email.localeCompare(b.email);
     } else if (sortBy === "favorite") {
@@ -120,10 +140,9 @@ const ContactList = ({
             <ContactCard
               key={contact.id}
               id={contact.id}
-              name={contact.name}
+              name={`${contact.firstName} ${contact.lastName}`}
               phone={contact.phone}
               email={contact.email}
-              avatarUrl={contact.avatarUrl}
               isFavorite={contact.favorite}
               onClick={() => onContactClick(contact)}
               onEdit={() => onEditContact(contact)}

@@ -22,21 +22,24 @@ import {
   DialogFooter,
 } from "./ui/dialog";
 import { Switch } from "./ui/switch";
-import { Star, Upload, X } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Star } from "lucide-react";
 
 const contactFormSchema = z.object({
-  name: z.string().min(1, { message: "Name is required" }),
+  firstName: z.string().min(1, { message: "First name is required" }),
+  lastName: z.string().min(1, { message: "Last name is required" }),
   phone: z.string().optional(),
   email: z
     .string()
     .email({ message: "Invalid email address" })
     .optional()
     .or(z.literal("")),
-  address: z.string().optional(),
+  streetAddress1: z.string().optional(),
+  streetAddress2: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  zipCode: z.string().optional(),
   notes: z.string().optional(),
   favorite: z.boolean().default(false),
-  avatarUrl: z.string().optional(),
 });
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
@@ -54,46 +57,33 @@ const ContactForm = ({
   onClose = () => {},
   onSubmit = () => {},
   initialData = {
-    name: "",
+    firstName: "",
+    lastName: "",
     phone: "",
     email: "",
-    address: "",
+    streetAddress1: "",
+    streetAddress2: "",
+    city: "",
+    state: "",
+    zipCode: "",
     notes: "",
     favorite: false,
-    avatarUrl: "",
   },
   title = "Add Contact",
 }: ContactFormProps) => {
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: initialData,
+    // Reset form when initialData changes or when dialog opens/closes
+    values: initialData,
   });
 
-  const [previewImage, setPreviewImage] = useState<string | null>(
-    initialData.avatarUrl || null,
-  );
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const dataUrl = event.target?.result as string;
-      setPreviewImage(dataUrl);
-      form.setValue("avatarUrl", dataUrl);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleRemoveImage = () => {
-    setPreviewImage(null);
-    form.setValue("avatarUrl", "");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
+  // Reset form when dialog closes
+  React.useEffect(() => {
+    if (!isOpen) {
+      form.reset();
     }
-  };
+  }, [isOpen, form]);
 
   const handleSubmit = (data: ContactFormValues) => {
     onSubmit(data);
@@ -112,19 +102,34 @@ const ContactForm = ({
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-6"
           >
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name*</FormLabel>
-                  <FormControl>
-                    <Input placeholder="John Doe" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="firstName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>First Name*</FormLabel>
+                    <FormControl>
+                      <Input placeholder="John" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Last Name*</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Doe" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
@@ -158,20 +163,75 @@ const ContactForm = ({
 
             <FormField
               control={form.control}
-              name="address"
+              name="streetAddress1"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Address</FormLabel>
+                  <FormLabel>Street Address Line 1</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="123 Main St, City, State, Zip"
-                      {...field}
-                    />
+                    <Input placeholder="123 Main St" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="streetAddress2"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Street Address Line 2</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Apt 4B" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormField
+                control={form.control}
+                name="city"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>City</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Anytown" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="state"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>State</FormLabel>
+                    <FormControl>
+                      <Input placeholder="CA" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="zipCode"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Zip Code</FormLabel>
+                    <FormControl>
+                      <Input placeholder="12345" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <FormField
               control={form.control}
@@ -190,56 +250,6 @@ const ContactForm = ({
                 </FormItem>
               )}
             />
-
-            {/* Image Upload */}
-            <div className="space-y-4">
-              <Label>Contact Picture</Label>
-              <div className="flex flex-col items-center gap-4">
-                {previewImage ? (
-                  <div className="relative">
-                    <Avatar className="h-24 w-24">
-                      <AvatarImage src={previewImage} alt="Contact" />
-                      <AvatarFallback>IMG</AvatarFallback>
-                    </Avatar>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="icon"
-                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
-                      onClick={handleRemoveImage}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="h-24 w-24 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
-                      <Upload className="h-8 w-8 text-gray-400" />
-                    </div>
-                    <span className="text-sm text-muted-foreground">
-                      No image selected
-                    </span>
-                  </div>
-                )}
-                <div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    id="avatar-upload"
-                    className="hidden"
-                    onChange={handleImageUpload}
-                    ref={fileInputRef}
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    {previewImage ? "Change Picture" : "Upload Picture"}
-                  </Button>
-                </div>
-              </div>
-            </div>
 
             <FormField
               control={form.control}

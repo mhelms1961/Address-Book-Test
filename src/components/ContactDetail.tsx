@@ -15,10 +15,15 @@ import { Heart, Mail, Phone, MapPin, Edit, Trash2, Star } from "lucide-react";
 interface ContactDetailProps {
   contact?: {
     id: string;
-    name: string;
+    firstName: string;
+    lastName: string;
     email: string;
     phone: string;
-    address?: string;
+    streetAddress1?: string;
+    streetAddress2?: string;
+    city?: string;
+    state?: string;
+    zipCode?: string;
     notes?: string;
     favorite?: boolean;
     avatarUrl?: string;
@@ -33,10 +38,15 @@ interface ContactDetailProps {
 const ContactDetail = ({
   contact = {
     id: "1",
-    name: "John Doe",
+    firstName: "John",
+    lastName: "Doe",
     email: "john.doe@example.com",
     phone: "(555) 123-4567",
-    address: "123 Main St, Anytown, USA 12345",
+    streetAddress1: "123 Main St",
+    streetAddress2: "",
+    city: "Anytown",
+    state: "CA",
+    zipCode: "12345",
     notes: "Met at the conference last year. Works in software development.",
     favorite: true,
   },
@@ -47,12 +57,8 @@ const ContactDetail = ({
   onToggleFavorite = () => {},
 }: ContactDetailProps) => {
   // Get initials for avatar fallback
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((part) => part[0])
-      .join("")
-      .toUpperCase();
+  const getInitials = (firstName: string, lastName: string) => {
+    return (firstName[0] || "") + (lastName[0] || "").toUpperCase();
   };
 
   return (
@@ -72,7 +78,7 @@ const ContactDetail = ({
                 <AvatarImage src={contact.avatarUrl} alt={contact.name} />
               ) : (
                 <AvatarFallback className="text-3xl">
-                  {getInitials(contact.name)}
+                  {getInitials(contact.firstName, contact.lastName)}
                 </AvatarFallback>
               )}
             </Avatar>
@@ -114,7 +120,7 @@ const ContactDetail = ({
           <Card className="flex-1 border-none shadow-none">
             <CardHeader className="px-0 pt-0">
               <CardTitle className="text-2xl flex items-center gap-2">
-                {contact.name}
+                {contact.firstName} {contact.lastName}
                 {contact.favorite && (
                   <Badge variant="secondary" className="ml-2">
                     <Heart
@@ -141,10 +147,25 @@ const ContactDetail = ({
                     {contact.email}
                   </a>
                 </div>
-                {contact.address && (
+                {(contact.streetAddress1 ||
+                  contact.city ||
+                  contact.state ||
+                  contact.zipCode) && (
                   <div className="flex items-start gap-2">
                     <MapPin className="h-4 w-4 text-muted-foreground mt-1" />
-                    <span>{contact.address}</span>
+                    <div className="flex flex-col">
+                      {contact.streetAddress1 && (
+                        <span>{contact.streetAddress1}</span>
+                      )}
+                      {contact.streetAddress2 && (
+                        <span>{contact.streetAddress2}</span>
+                      )}
+                      <span>
+                        {[contact.city, contact.state, contact.zipCode]
+                          .filter(Boolean)
+                          .join(", ")}
+                      </span>
+                    </div>
                   </div>
                 )}
               </div>
