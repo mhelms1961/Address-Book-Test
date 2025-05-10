@@ -1,5 +1,5 @@
-import React, { useState, useRef } from "react";
-import { PlusCircle, Search, Download, Upload } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { PlusCircle, Search, Download, Upload, Undo2 } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import {
@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import ContactList from "./ContactList";
 import ContactForm from "./ContactForm";
 import ContactDetail from "./ContactDetail";
+// ImportPreview component removed
 
 interface Contact {
   id: string;
@@ -35,10 +36,12 @@ export default function Home() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  // Removed import preview related states
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
 
   // Mock data for initial display
   const [contacts, setContacts] = useState<Contact[]>([
+    // Initial contacts
     {
       id: "1",
       firstName: "John",
@@ -168,6 +171,35 @@ export default function Home() {
     });
   };
 
+  // Store previous contacts state for undo functionality
+  const [previousContacts, setPreviousContacts] = useState<Contact[] | null>(
+    null,
+  );
+  const [showUndoImport, setShowUndoImport] = useState(false);
+
+  // Auto-hide undo button after 30 seconds
+  useEffect(() => {
+    let undoTimer: number | null = null;
+
+    if (showUndoImport) {
+      undoTimer = window.setTimeout(() => {
+        setShowUndoImport(false);
+      }, 30000); // 30 seconds
+    }
+
+    return () => {
+      if (undoTimer) clearTimeout(undoTimer);
+    };
+  }, [showUndoImport]);
+
+  const handleUndoImport = () => {
+    if (previousContacts) {
+      setContacts(previousContacts);
+      setPreviousContacts(null);
+      setShowUndoImport(false);
+    }
+  };
+
   const handleImportContacts = (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -186,9 +218,8 @@ export default function Home() {
           // Convert to JSON
           const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-          // Process and add contacts
-          const newContacts = jsonData.map((row) => ({
-            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+          // Process and filter out duplicate contacts
+          const processedData = jsonData.map((row) => ({
             firstName: row.FirstName || "",
             lastName: row.LastName || "",
             phone: row.Phone || "",
@@ -202,7 +233,65 @@ export default function Home() {
             favorite: row.Favorite === "Yes",
           }));
 
-          setContacts([...contacts, ...newContacts]);
+          // Filter out duplicates based on email and phone
+          const uniqueContacts = processedData.filter((newContact) => {
+            return !contacts.some(
+              (existingContact) =>
+                // Check if email matches (if both have email)
+                (newContact.email &&
+                  existingContact.email &&
+                  newContact.email.toLowerCase() ===
+                    existingContact.email.toLowerCase()) ||
+                // Check if phone matches (if both have phone)
+                (newContact.phone &&
+                  existingContact.phone &&
+                  newContact.phone.replace(/\D/g, "") ===
+                    existingContact.phone.replace(/\D/g, "")) ||
+                // Check if first name, last name, and either city or street address match
+                (newContact.firstName &&
+                  newContact.lastName &&
+                  newContact.firstName.toLowerCase() ===
+                    existingContact.firstName.toLowerCase() &&
+                  newContact.lastName.toLowerCase() ===
+                    existingContact.lastName.toLowerCase() &&
+                  ((newContact.city &&
+                    existingContact.city &&
+                    newContact.city.toLowerCase() ===
+                      existingContact.city.toLowerCase()) ||
+                    (newContact.streetAddress1 &&
+                      existingContact.streetAddress1 &&
+                      newContact.streetAddress1.toLowerCase() ===
+                        existingContact.streetAddress1.toLowerCase()))),
+            );
+          });
+
+          // Add IDs to unique contacts
+          const newContacts = uniqueContacts.map((contact) => ({
+            ...contact,
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+          }));
+
+          // Save current contacts state before updating
+          setPreviousContacts([...contacts]);
+
+          // Store duplicates count for notification
+          const duplicatesCount = processedData.length - uniqueContacts.length;
+
+          // Directly import contacts without preview
+          if (newContacts.length > 0) {
+            setContacts([...contacts, ...newContacts]);
+            setShowUndoImport(true);
+            alert(
+              `Successfully imported ${newContacts.length} new contacts. ${duplicatesCount > 0 ? `${duplicatesCount} duplicate contacts were skipped.` : ""}`,
+            );
+          } else if (duplicatesCount > 0) {
+            alert(
+              `No new contacts were imported. All ${duplicatesCount} duplicate contacts already exist in your address book.`,
+            );
+          } else {
+            alert("No contacts found in the imported file.");
+          }
+
           event.target.value = null; // Reset file input
         } catch (error) {
           console.error("Error importing contacts:", error);
@@ -256,6 +345,16 @@ export default function Home() {
               className="hidden"
               onChange={handleImportContacts}
             />
+            {showUndoImport && (
+              <Button
+                variant="outline"
+                onClick={handleUndoImport}
+                className="text-amber-600 border-amber-600 hover:bg-amber-50"
+              >
+                <Undo2 className="mr-2 h-4 w-4" />
+                Undo Import
+              </Button>
+            )}
             <Button onClick={openAddContactDialog}>
               <PlusCircle className="mr-2 h-4 w-4" />
               Add Contact
@@ -297,6 +396,8 @@ export default function Home() {
         />
       </main>
 
+      {/* Import Preview Dialog removed */}
+
       {/* Add Contact Dialog */}
       <ContactForm
         isOpen={isAddDialogOpen}
@@ -330,6 +431,8 @@ export default function Home() {
           onToggleFavorite={() => handleToggleFavorite(selectedContact.id)}
         />
       )}
+
+      {/* Import Preview Dialog removed */}
     </div>
   );
 }
