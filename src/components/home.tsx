@@ -361,32 +361,7 @@ export default function Home() {
             </Button>
           </div>
         </div>
-
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search contacts..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9"
-            />
-          </div>
-          <div className="w-full sm:w-48">
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger>
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="name">Name</SelectItem>
-                <SelectItem value="email">Email</SelectItem>
-                <SelectItem value="favorite">Favorites</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
       </header>
-
       <main>
         <ContactList
           contacts={sortedContacts}
@@ -395,9 +370,7 @@ export default function Home() {
           onEditContact={handleEditClick}
         />
       </main>
-
       {/* Import Preview Dialog removed */}
-
       {/* Add Contact Dialog */}
       <ContactForm
         isOpen={isAddDialogOpen}
@@ -405,7 +378,6 @@ export default function Home() {
         onSubmit={handleAddContact}
         title="Add New Contact"
       />
-
       {/* Edit Contact Dialog */}
       {selectedContact && (
         <ContactForm
@@ -416,7 +388,6 @@ export default function Home() {
           title="Edit Contact"
         />
       )}
-
       {/* Contact Detail Dialog */}
       {selectedContact && (
         <ContactDetail
@@ -431,7 +402,6 @@ export default function Home() {
           onToggleFavorite={() => handleToggleFavorite(selectedContact.id)}
         />
       )}
-
       {/* Import Preview Dialog removed */}
     </div>
   );
