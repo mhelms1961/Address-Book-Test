@@ -28,6 +28,7 @@ interface Contact {
   zipCode?: string;
   notes?: string;
   favorite: boolean;
+  type?: string;
 }
 
 export default function Home() {
@@ -55,6 +56,7 @@ export default function Home() {
       zipCode: "12345",
       notes: "Work colleague",
       favorite: true,
+      type: "Incomplete",
     },
     {
       id: "2",
@@ -69,6 +71,7 @@ export default function Home() {
       zipCode: "67890",
       notes: "College friend",
       favorite: false,
+      type: "Incomplete",
     },
     {
       id: "3",
@@ -83,6 +86,7 @@ export default function Home() {
       zipCode: "54321",
       notes: "Family doctor",
       favorite: true,
+      type: "Complete",
     },
   ]);
 
@@ -219,19 +223,38 @@ export default function Home() {
           const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
           // Process and filter out duplicate contacts
-          const processedData = jsonData.map((row) => ({
-            firstName: row.FirstName || "",
-            lastName: row.LastName || "",
-            phone: row.Phone || "",
-            email: row.Email || "",
-            streetAddress1: row.StreetAddress1 || "",
-            streetAddress2: row.StreetAddress2 || "",
-            city: row.City || "",
-            state: row.State || "",
-            zipCode: row.ZipCode || "",
-            notes: row.Notes || "",
-            favorite: row.Favorite === "Yes",
-          }));
+          const processedData = jsonData.map((row) => {
+            const phone = row.Phone || "N/A";
+            const email = row.Email || "N/A";
+            const streetAddress1 = row.StreetAddress1 || "N/A";
+            const streetAddress2 = row.StreetAddress2 || "N/A";
+
+            // Determine if contact is complete or incomplete
+            // Check if any field except FirstName, LastName, City, State, and ZipCode has a value of 'N/A'
+            const type =
+              row.Phone === "N/A" ||
+              row.Email === "N/A" ||
+              row.StreetAddress1 === "N/A" ||
+              row.StreetAddress2 === "N/A" ||
+              row.Notes === "N/A"
+                ? "Incomplete"
+                : "Complete";
+
+            return {
+              firstName: row.FirstName || "",
+              lastName: row.LastName || "",
+              phone,
+              email,
+              streetAddress1,
+              streetAddress2,
+              city: row.City || "",
+              state: row.State || "",
+              zipCode: row.ZipCode || "",
+              notes: row.Notes || "Voter",
+              favorite: row.Favorite === "Yes",
+              type,
+            };
+          });
 
           // Filter out duplicates based on email and phone
           const uniqueContacts = processedData.filter((newContact) => {

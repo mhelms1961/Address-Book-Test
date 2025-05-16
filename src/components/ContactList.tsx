@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search } from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
 import ContactCard from "./ContactCard";
 import { Input } from "./ui/input";
 import {
@@ -108,21 +108,21 @@ const ContactList = ({
   });
 
   return (
-    <div className="w-full bg-background p-4">
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="w-full bg-background p-6 rounded-xl">
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="relative w-full sm:max-w-md">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search contacts..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9"
+            className="pl-10"
           />
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Sort by:</span>
+        <div className="flex items-center gap-3 bg-muted/50 p-2 rounded-lg">
+          <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
           <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[180px] border-none bg-transparent focus:ring-0 focus:ring-offset-0">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
@@ -135,7 +135,7 @@ const ContactList = ({
       </div>
 
       {sortedContacts.length > 0 ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {sortedContacts.map((contact) => (
             <ContactCard
               key={contact.id}
@@ -153,7 +153,7 @@ const ContactList = ({
           ))}
         </div>
       ) : (
-        <div className="flex h-40 items-center justify-center rounded-lg border border-dashed">
+        <div className="flex h-60 items-center justify-center rounded-xl border border-dashed bg-muted/30">
           <p className="text-center text-muted-foreground">
             {searchTerm
               ? "No contacts found matching your search"

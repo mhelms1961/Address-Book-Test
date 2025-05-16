@@ -16,6 +16,7 @@ interface ContactCardProps {
   state?: string;
   zipCode?: string;
   isFavorite?: boolean;
+  type?: string;
   onEdit?: (id: string) => void;
   onToggleFavorite?: (id: string) => void;
   onClick?: (id: string) => void;
@@ -34,6 +35,7 @@ const ContactCard = ({
   state = "",
   zipCode = "",
   isFavorite = false,
+  type = "Complete",
   onEdit = () => {},
   onToggleFavorite = () => {},
   onClick = () => {},
@@ -65,19 +67,28 @@ const ContactCard = ({
 
   return (
     <Card
-      className="w-full max-w-md bg-white hover:shadow-md transition-shadow cursor-pointer"
+      className="w-full max-w-md bg-white hover:shadow-hover transition-all duration-300 cursor-pointer overflow-hidden group"
       onClick={() => onClick(id)}
     >
-      <CardContent className="p-4">
+      <CardContent className="p-5">
         <div className="flex items-center gap-4">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium truncate">{fullName}</h3>
-              <div className="flex gap-1">
+            <div className="flex items-center justify-between mb-2">
+              <div>
+                <h3 className="text-lg font-medium truncate">{fullName}</h3>
+                {type && (
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded-full inline-flex items-center mt-1 ${type === "Complete" ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}`}
+                  >
+                    {type}
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={isFavorite ? "text-yellow-500" : "text-gray-400"}
+                  className={isFavorite ? "text-amber-500" : "text-gray-400"}
                   onClick={handleToggleFavorite}
                 >
                   <Star
@@ -91,22 +102,22 @@ const ContactCard = ({
               </div>
             </div>
 
-            <div className="mt-1 space-y-1">
+            <div className="mt-2 space-y-2">
               {phone && (
-                <div className="flex items-center text-sm text-gray-500">
-                  <Phone className="h-3.5 w-3.5 mr-1.5" />
+                <div className="flex items-center text-sm text-gray-600">
+                  <Phone className="h-3.5 w-3.5 mr-2 text-primary/70" />
                   <span className="truncate">{phone}</span>
                 </div>
               )}
               {email && (
-                <div className="flex items-center text-sm text-gray-500">
-                  <Mail className="h-3.5 w-3.5 mr-1.5" />
+                <div className="flex items-center text-sm text-gray-600">
+                  <Mail className="h-3.5 w-3.5 mr-2 text-primary/70" />
                   <span className="truncate">{email}</span>
                 </div>
               )}
               {hasAddress && (
-                <div className="flex items-start text-sm text-gray-500">
-                  <MapPin className="h-3.5 w-3.5 mr-1.5 mt-0.5" />
+                <div className="flex items-start text-sm text-gray-600">
+                  <MapPin className="h-3.5 w-3.5 mr-2 mt-0.5 text-primary/70" />
                   <div className="truncate">
                     {streetAddress1 && <div>{streetAddress1}</div>}
                     {streetAddress2 && <div>{streetAddress2}</div>}

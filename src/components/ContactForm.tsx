@@ -92,15 +92,15 @@ const ContactForm = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[600px] bg-white">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[600px] bg-background rounded-xl overflow-hidden p-0">
+        <DialogHeader className="p-6 bg-primary/5">
           <DialogTitle className="text-xl font-semibold">{title}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-6"
+            className="space-y-6 p-6"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
@@ -242,7 +242,7 @@ const ContactForm = ({
                   <FormControl>
                     <Textarea
                       placeholder="Add any additional information here..."
-                      className="min-h-[100px]"
+                      className="min-h-[100px] resize-none"
                       {...field}
                     />
                   </FormControl>
@@ -255,7 +255,7 @@ const ContactForm = ({
               control={form.control}
               name="favorite"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm bg-muted/30">
                   <div className="space-y-0.5">
                     <FormLabel>Mark as Favorite</FormLabel>
                   </div>
@@ -266,7 +266,7 @@ const ContactForm = ({
                         onCheckedChange={field.onChange}
                       />
                       {field.value && (
-                        <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
+                        <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
                       )}
                     </div>
                   </FormControl>
@@ -274,7 +274,7 @@ const ContactForm = ({
               )}
             />
 
-            <DialogFooter>
+            <DialogFooter className="pt-4">
               <Button type="button" variant="outline" onClick={() => onClose()}>
                 Cancel
               </Button>
